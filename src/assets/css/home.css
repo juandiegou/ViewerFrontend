@@ -1,0 +1,39 @@
+.card-home {
+  position: fixed;
+  top: 0;
+  right: 5%;
+  left: 0;
+  margin: 5px;
+}
+
+.card-home:hover {
+  transform: scale(1.3);
+}
+
+.image-pet {
+  border: 1px solid;
+  padding: 4px;
+  width: 100px;
+}
+
+.macho {
+  background: #1A66FF;
+  color: rgb(17, 16, 16);
+}
+
+.hembra {
+  background: #f4b8fa;
+  color: rgb(7, 7, 7);
+}
+.table-pays {
+  margin: 0;
+}
+.table-pays td {
+  padding-right: 0;
+}
+
+.graph {
+  align-content: center;
+  width: 100%;
+  height: 90%;
+}
