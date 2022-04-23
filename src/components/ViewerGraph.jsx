@@ -42,6 +42,7 @@ export const ViewerGraph = () => {
     if (numLinks ) {
       handleShow("setLinks");
     }
+    
   }
 
     
