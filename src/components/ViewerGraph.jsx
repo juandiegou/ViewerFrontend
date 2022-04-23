@@ -37,12 +37,11 @@ export const ViewerGraph = () => {
   };
 
   const onSetLinks = () => {
-    console.log("onSetLinks");
     handleClose("newNode");
     if (numLinks ) {
       handleShow("setLinks");
     }
-    
+
   }
 
     
@@ -71,27 +70,15 @@ export const ViewerGraph = () => {
       <Card>
         <Card.Header>
          <Button variant="info" onClick={() => handleShow("upload")} >
-          {/* <FontAwesomeIcon
-            icon={faUpload}
-            className="menu-icon"
-          ></FontAwesomeIcon>  */}
            Subir Archivo
           </Button>
           <Button 
           variant="info"
           onClick={() => onDownload()}
           >
-          {/* <FontAwesomeIcon
-            icon={faDownload}
-            className="menu-icon"
-          ></FontAwesomeIcon>  */}
            Descargar Imagen
           </Button>
           <Button>
-          {/* <FontAwesomeIcon
-            icon={faFileExcel}
-            className="menu-icon"
-          ></FontAwesomeIcon>  */}
            Exportar Archivo
           </Button>          
         </Card.Header>
@@ -142,7 +129,7 @@ export const ViewerGraph = () => {
         keyboard={true}
       >
         <Form
-          onSubmit={()=> console.log("hola")}
+          onSubmit={()=> console.log("enviando")}
           >
           <Modal.Body>
             <Form.Group>
