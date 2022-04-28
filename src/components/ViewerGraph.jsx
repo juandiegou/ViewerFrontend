@@ -65,6 +65,7 @@ export const ViewerGraph = () => {
     console.log(`Clicked link between ${source} and ${target}`);
   };
 
+
   return (
     <div className="graph">
       <Card>
@@ -124,14 +125,14 @@ export const ViewerGraph = () => {
       >
         <Modal.Body>       
           <Upload></Upload>
+
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={(e)=> handleClose("upload")}>
             Close
           </Button>
-          <Button variant="primary">
-            Save Changes
-          </Button>
+
+         
         </Modal.Footer>
       </Modal>
 
