@@ -14,3 +14,16 @@ export const registerGraph= async (newGraph) => {
         body : newGraph
     });
 };
+
+export const getGraphbyId = async(id)=> {
+  
+    var ids = API_URL+"/"+id;
+    console.log(ids);
+    return await fetch(ids)
+};
+
+export const deleteGraph = async (id) => {
+    return await fetch(API_URL+"/"+id, {
+        method : 'DELETE'
+    })
+};

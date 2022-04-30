@@ -8,10 +8,7 @@ const GraphList = () => {
         try {
             const res = await GraphServer.listGraph();
             const data = await res.json();
-            console.log(data)
-
             setGraphs(data);
-            console.log(graphs.generalData1)
         } catch (error) {
             console.log(error);
         }
