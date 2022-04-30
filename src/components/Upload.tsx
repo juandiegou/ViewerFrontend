@@ -13,9 +13,12 @@ export const Upload = () => {
     
   };
 
-  const JsonA = ()  => {
-    console.log(files[0].file);
-    GraphServer.registerGraph(files[0].file);
+  const JsonA = async ()  =>  {
+    //console.log(files[0].file);
+    await GraphServer.registerGraph(files[0].file);
+    window.location.reload();
+    
+    
 };
 
  
@@ -26,7 +29,7 @@ export const Upload = () => {
         <FileItem {...file} preview />
       ))}
 
-    </Dropzone><br/><Button variant="primary" onClick={() => JsonA()}>Save</Button>   </>
+    </Dropzone><br/><Button variant="primary" onClick={() => JsonA() }>Save</Button>   </>
       
     
 
