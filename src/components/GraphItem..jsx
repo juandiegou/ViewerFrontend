@@ -10,7 +10,6 @@ const GraphItem =  (props) => {
   const [graphData, setGraphData] = useState({});
   const handleClose = () => setShowInfo(false);
   const handleShow = () => setShowInfo(true);
-
    // const [graph, setGraph] = useState([]);
     const getbyId = async (id) => {
         try {
