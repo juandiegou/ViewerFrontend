@@ -1,4 +1,5 @@
 import React, {useState} from 'react'
+import { faUpload,faDownload,faFileExcel } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Card, Button, Modal, Form , Col, Row } from 'react-bootstrap';
 import ResponsiveEmbed from 'react-bootstrap/ResponsiveEmbed';
@@ -64,21 +65,32 @@ export const ViewerGraph = () => {
     console.log(`Clicked link between ${source} and ${target}`);
   };
 
-
   return (
     <div className="graph">
       <Card>
         <Card.Header>
          <Button variant="info" onClick={() => handleShow("upload")} >
+          <FontAwesomeIcon
+            icon={faUpload}
+            className="menu-icon"
+          ></FontAwesomeIcon> 
            Subir Archivo
           </Button>
           <Button 
           variant="info"
           onClick={() => onDownload()}
           >
+          <FontAwesomeIcon
+            icon={faDownload}
+            className="menu-icon"
+          ></FontAwesomeIcon> 
            Descargar Imagen
           </Button>
           <Button>
+          <FontAwesomeIcon
+            icon={faFileExcel}
+            className="menu-icon"
+          ></FontAwesomeIcon> 
            Exportar Archivo
           </Button>          
         </Card.Header>
@@ -112,14 +124,14 @@ export const ViewerGraph = () => {
       >
         <Modal.Body>       
           <Upload></Upload>
-
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={(e)=> handleClose("upload")}>
             Close
           </Button>
-
-         
+          <Button variant="primary">
+            Save Changes
+          </Button>
         </Modal.Footer>
       </Modal>
 
