@@ -1,3 +1,5 @@
+import { faHome,faProjectDiagram,faUpload,faMagic,faChartPie } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Image, Card } from "react-bootstrap";
 import { NavLink } from "react-router-dom";
 import "../../assets/css/menu.css";
@@ -32,6 +34,10 @@ export const Menu = () => {
         <ul className="menu-items">
         <li>
           <NavLink to={"/dashboard"} activeClassName="item-active" >
+            <FontAwesomeIcon
+              icon={faHome}
+              className="menu-icon"
+            ></FontAwesomeIcon>
             Inicio
           </NavLink>
         </li>
@@ -46,16 +52,28 @@ export const Menu = () => {
         </li> */}
         <li>
           <NavLink to={`/visualizacion`} activeClassName="item-active">
+            <FontAwesomeIcon
+              icon={faProjectDiagram}
+              className="menu-icon"
+            ></FontAwesomeIcon>
             Visualizar grafo
           </NavLink>
         </li>   
         <li>
           <NavLink to={`/algoritmos`} activeClassName="item-active">
+            <FontAwesomeIcon
+              icon={faMagic}
+              className="menu-icon"
+            ></FontAwesomeIcon>
             Algoritmos
           </NavLink>
         </li>
         <li>
           <NavLink to={`/estadisticas`} activeClassName="item-active">
+            <FontAwesomeIcon
+              icon={faChartPie}
+              className="menu-icon"
+            ></FontAwesomeIcon>
             Estadisticas
           </NavLink>
         </li>
