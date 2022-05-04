@@ -8,7 +8,9 @@ import { Upload } from "./Upload";
 import "../assets/css/graph.css";
 
 export const ViewerGraph = () => {
-  const [numLinks, setNumLinks] = useState();
+  const [network, setNetwork] = useState();
+  const [currentEvent, setCurrentEvent] = useState();
+  const [currentNode, setCurrentNode] = useState();
   const { ref, isLoading, getPng } = useToImage();
   const [modal, setModal]= useState({"upload":false, "newNode":false, "setLinks":false});
   const [config, setCofig] = useState( {
@@ -28,36 +30,47 @@ export const ViewerGraph = () => {
     nodes: [ { id: 1, label: "Harry" }, { id: 2, label:"Sally" }, { id: 3 ,label: "Alice" } ],
     edges: [ { from: 1, to: 2 }, { from: 1, to: 3 } ],
   });
+
+  const [options, setOptions] = useState({
+    manipulation: {
+      enabled: false,
+      initiallyActive: false,
+      addNode: true,
+      addEdge: true,
+      editEdge: true,
+      deleteNode: true,
+      deleteEdge: true,
+    }
+  });
+  
   const handleShow = (modalName) => setModal({...modal, [modalName]:true});
   const handleClose = (modalName) => setModal({...modal, [modalName]:false});
 
-  const onClickGraph = () => {
-    handleShow("newNode");
-  };
+  const events ={
+    doubleClick : function(event) {
+      setCurrentEvent(event);
+      handleShow("newNode");
+    },
+    selectNode: function(event) {
+      console.log(event);
+    },
 
-  const onSetLinks = () => {
-    console.log("onSetLinks");
-    handleClose("newNode");
-    if (numLinks ) {
-      handleShow("setLinks");
-    }
   }
 
-  const onClickNode = (nodeId) => {
-    console.log(`Clicked node ${nodeId}`);
-  };
-
-  const onDoubleClickNode = (nodeId) => {
-    console.log(`Double clicked node ${nodeId}`);
-  };
-
-  const onRightClickNode = (event, nodeId) => {
-    console.log(`Right clicked node ${nodeId}`);
-  };
-
-  const onClickLink = (source, target) => {
-    console.log(`Clicked link between ${source} and ${target}`);
-  };
+  const onAddNode =() => {
+    if(currentNode){
+      console.log(network, data,currentEvent);
+      const idTemp=data.nodes.length+1;
+      const x =currentEvent.pointer.DOM.x;
+      const y =currentEvent.pointer.DOM.y;
+      data.nodes.push({id:idTemp,label:currentNode, x,y});
+      setData({...data});
+      network.setData(data);
+      setCurrentNode();
+      setCurrentEvent();   
+    }
+    handleClose("newNode");
+  }
 
   return (
     <div className="graph">
@@ -82,6 +95,11 @@ export const ViewerGraph = () => {
               <picture>
                 <Graph 
                   graph={data}
+                  options={options}
+                  events={events}
+                  getNetwork={network => {
+                    setNetwork(network);
+                  }}
                 />
               </picture>                
             </div>
@@ -92,30 +110,29 @@ export const ViewerGraph = () => {
         </Card.Footer>
       </Card>
       <Modal
+        /**
+         * modal of upload file
+         */
         show={modal.upload}
         onHide={()=> handleClose("upload")}
         keyboard={true}
       >
         <Modal.Body>       
           <Upload></Upload>
-
-        </Modal.Body>
-        <Modal.Footer>
           <Button variant="secondary" onClick={(e)=> handleClose("upload")}>
             Close
           </Button>
-
-         
-        </Modal.Footer>
+        </Modal.Body>
       </Modal>
-
+      
       <Modal
+        /** modal of new node */
         show={modal.newNode}
         onHide={()=> handleClose("newNode")}
         keyboard={true}
       >
         <Form
-          onSubmit={()=> console.log("hola")}
+          /**onSubmit={onAddNode}*/
           >
           <Modal.Body>
             <Form.Group>
@@ -125,51 +142,16 @@ export const ViewerGraph = () => {
               <Form.Control
                 placeholder={"nombre del nodo"}
                 type="text"
-              />
-              <Form.Label>
-                Cantidad de Aristas <span className="text-danger">*</span>
-              </Form.Label>
-              <Form.Control
-                placeholder={"cantidad de aristas"}
-                type="number"
-                min="0"
-                onChange={(e)=> setNumLinks(e.target.value)}
-              />
-              {
-                numLinks > 0 &&
-                (
-
-                  Array.from({length: numLinks}).map((k,v) => (                   
-                      <Form.Group key={k}>
-                        <Form.Label>
-                          Arista  <span className="text-danger">*</span>
-                        </Form.Label>
-                        <Row>
-                          <Col>
-                            <Form.Control
-                              placeholder={"nombre del nodo origen"}
-                              type="text"
-                            />
-                          </Col>
-                          <Col>
-                            <Form.Control
-                              placeholder={"nombre del nodo destino"}
-                              type="text"
-                            />
-                          </Col>
-                        </Row>
-                      </Form.Group>
-                  ))
-
-                )
-              }              
+                value={currentNode?currentNode:""}
+                onChange={(e)=> setCurrentNode(e.target.value)}
+              />           
             </Form.Group> 
           </Modal.Body>
           <Modal.Footer>
             <Button variant="secondary" onClick={()=> handleClose("newNode") }>
               Close
             </Button>
-            <Button variant="primary" onClick={()=> onSetLinks() }>
+            <Button variant="primary" onClick={onAddNode}>
               Save Changes
             </Button>
           </Modal.Footer>
