@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import * as GraphServer from "./GraphServer";
-import GraphItem from "./GraphItem.";
+import GraphItem from "./GraphItem";
 const GraphList = () => {
     const [graphs, setGraphs] = useState([]);
 

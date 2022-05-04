@@ -2,14 +2,14 @@ import React, {useState} from 'react'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Card, Button, Modal, Form , Col, Row } from 'react-bootstrap';
 import ResponsiveEmbed from 'react-bootstrap/ResponsiveEmbed';
-import { Graph } from "react-d3-graph";
+import Graph from "react-graph-vis";
+import { useToImage } from '@hcorta/react-to-image'
 import { Upload } from "./Upload";
 import "../assets/css/graph.css";
-const d3ToPng = require('d3-svg-to-png');	
-
 
 export const ViewerGraph = () => {
   const [numLinks, setNumLinks] = useState();
+  const { ref, isLoading, getPng } = useToImage();
   const [modal, setModal]= useState({"upload":false, "newNode":false, "setLinks":false});
   const [config, setCofig] = useState( {
     nodeHighlightBehavior: true,
@@ -25,8 +25,8 @@ export const ViewerGraph = () => {
     initialZoom: 1,
   });
   const [data, setData] = useState({
-    nodes: [ { id: "Harry" }, { id: "Sally" }, { id: "Alice" } ],
-    links: [ { source: "Harry", target: "Sally" }, { source: "Harry", target: "Alice" } ],
+    nodes: [ { id: 1, label: "Harry" }, { id: 2, label:"Sally" }, { id: 3 ,label: "Alice" } ],
+    edges: [ { from: 1, to: 2 }, { from: 1, to: 3 } ],
   });
   const handleShow = (modalName) => setModal({...modal, [modalName]:true});
   const handleClose = (modalName) => setModal({...modal, [modalName]:false});
@@ -41,11 +41,6 @@ export const ViewerGraph = () => {
     if (numLinks ) {
       handleShow("setLinks");
     }
-  }
-
-    
-  const onDownload = () => {
-    d3ToPng("svg",'graph',{ignored:'.menu'});
   }
 
   const onClickNode = (nodeId) => {
@@ -64,7 +59,6 @@ export const ViewerGraph = () => {
     console.log(`Clicked link between ${source} and ${target}`);
   };
 
-
   return (
     <div className="graph">
       <Card>
@@ -74,7 +68,7 @@ export const ViewerGraph = () => {
           </Button>
           <Button 
           variant="info"
-          onClick={() => onDownload()}
+          onClick={()=>getPng()}
           >
            Descargar Imagen
           </Button>
@@ -82,20 +76,12 @@ export const ViewerGraph = () => {
            Exportar Archivo
           </Button>          
         </Card.Header>
-        <Card.Body>
-        <ResponsiveEmbed aspectRatio={'4by3'}>
+        <Card.Body > 
+        <ResponsiveEmbed aspectRatio={'4by3'}  ref={ref}>
             <div className="container__graph-area">
               <picture>
                 <Graph 
-                  id="graph-id" // id is mandatory, if no id is defined rd3g will throw an error
-                  data={data}
-                  config={config}
-                  onClickNode={onClickNode}
-                  onClickLink={onClickLink}
-                  onClickGraph={onClickGraph}
-                  onRightClickNode={onRightClickNode}
-                  onDoubleClickNode={onDoubleClickNode}
-
+                  graph={data}
                 />
               </picture>                
             </div>
