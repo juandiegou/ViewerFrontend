@@ -1,16 +1,19 @@
 import React, {useState} from 'react'
-import { faUpload,faDownload,faFileExcel } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Card, Button, Modal, Form , Col, Row } from 'react-bootstrap';
 import ResponsiveEmbed from 'react-bootstrap/ResponsiveEmbed';
-import { Graph } from "react-d3-graph";
+import Graph from "react-graph-vis";
+import { useToImage } from '@hcorta/react-to-image'
 import { Upload } from "./Upload";
 import "../assets/css/graph.css";
-const d3ToPng = require('d3-svg-to-png');	
-
 
 export const ViewerGraph = () => {
-  const [numLinks, setNumLinks] = useState();
+  const [network, setNetwork] = useState();
+  const [currentEvent, setCurrentEvent] = useState();
+  const [currentNode, setCurrentNode] = useState();
+  const [currentFrom, setCurrentFrom] = useState();
+  const [currentTo, setCurrentTo] = useState();
+  const { ref, isLoading, getPng } = useToImage();
   const [modal, setModal]= useState({"upload":false, "newNode":false, "setLinks":false});
   const [config, setCofig] = useState( {
     nodeHighlightBehavior: true,
@@ -26,44 +29,63 @@ export const ViewerGraph = () => {
     initialZoom: 1,
   });
   const [data, setData] = useState({
-    nodes: [ { id: "Harry" }, { id: "Sally" }, { id: "Alice" } ],
-    links: [ { source: "Harry", target: "Sally" }, { source: "Harry", target: "Alice" } ],
+    nodes: [ { id: 1, label: "Harry" }, { id: 2, label:"Sally" }, { id: 3 ,label: "Alice" } ],
+    edges: [ { from: 1, to: 2 }, { from: 1, to: 3 } ],
   });
+
+  const [options, setOptions] = useState({
+    manipulation: {
+      enabled: false,
+      initiallyActive: false,
+      addNode: true,
+      addEdge: true,
+      editEdge: true,
+      deleteNode: true,
+      deleteEdge: true,
+    }
+  });
+  
   const handleShow = (modalName) => setModal({...modal, [modalName]:true});
   const handleClose = (modalName) => setModal({...modal, [modalName]:false});
 
-  const onClickGraph = () => {
-    handleShow("newNode");
-  };
+  const events ={
+    doubleClick : function(event) {
+      setCurrentEvent(event);
+      handleShow("newNode");
+    },
+    selectNode: function(event) {
+      console.log(event);
+    },
 
-  const onSetLinks = () => {
-    handleClose("newNode");
-    if (numLinks ) {
-      handleShow("setLinks");
+  }
+
+  const onAddNode =() => {
+    if(currentNode){
+      console.log(network, data,currentEvent);
+      const idTemp=data.nodes.length+1;
+      const x =currentEvent.pointer.DOM.x;
+      const y =currentEvent.pointer.DOM.y;
+      data.nodes.push({id:idTemp,label:currentNode, x,y});
+      //
+      
+      setData({...data});
+      network.setData(data);
+      setCurrentNode();
+      setCurrentEvent();   
+    }
+   if(currentFrom && currentTo){
+      console.log(currentFrom, currentTo)
+      data.edges.push({from : currentFrom, to : currentTo, });
+      setData({...data});
+      network.setData(data);
+      setCurrentFrom();
+      setCurrentTo(); 
+
     }
 
+    handleClose("newNode");
   }
-
-    
-  const onDownload = () => {
-    d3ToPng("svg",'graph',{scale: 5, format: "png", quality: 1});
-  }
-
-  const onClickNode = (nodeId) => {
-    console.log(`Clicked node ${nodeId}`);
-  };
-
-  const onDoubleClickNode = (nodeId) => {
-    console.log(`Double clicked node ${nodeId}`);
-  };
-
-  const onRightClickNode = (event, nodeId) => {
-    console.log(`Right clicked node ${nodeId}`);
-  };
-
-  const onClickLink = (source, target) => {
-    console.log(`Clicked link between ${source} and ${target}`);
-  };
+  
 
   return (
     <div className="graph">
@@ -74,28 +96,26 @@ export const ViewerGraph = () => {
           </Button>
           <Button 
           variant="info"
-          onClick={() => onDownload()}
+          onClick={()=>getPng()}
           >
            Descargar Imagen
           </Button>
           <Button>
            Exportar Archivo
-          </Button>          
+          </Button> 
+                  
         </Card.Header>
-        <Card.Body>
-        <ResponsiveEmbed aspectRatio={'4by3'}>
+        <Card.Body > 
+        <ResponsiveEmbed aspectRatio={'4by3'}  ref={ref}>
             <div className="container__graph-area">
               <picture>
                 <Graph 
-                  id="graph-id" // id is mandatory, if no id is defined rd3g will throw an error
-                  data={data}
-                  config={config}
-                  onClickNode={onClickNode}
-                  onClickLink={onClickLink}
-                  onClickGraph={onClickGraph}
-                  onRightClickNode={onRightClickNode}
-                  onDoubleClickNode={onDoubleClickNode}
-
+                  graph={data}
+                  options={options}
+                  events={events}
+                  getNetwork={network => {
+                    setNetwork(network);
+                  }}
                 />
               </picture>                
             </div>
@@ -106,86 +126,70 @@ export const ViewerGraph = () => {
         </Card.Footer>
       </Card>
       <Modal
+        /**
+         * modal of upload file
+         */
         show={modal.upload}
         onHide={()=> handleClose("upload")}
         keyboard={true}
       >
         <Modal.Body>       
           <Upload></Upload>
-        </Modal.Body>
-        <Modal.Footer>
           <Button variant="secondary" onClick={(e)=> handleClose("upload")}>
             Close
           </Button>
-          <Button variant="primary">
-            Save Changes
-          </Button>
-        </Modal.Footer>
+        </Modal.Body>
       </Modal>
-
+      
       <Modal
+        /** modal of new node */
         show={modal.newNode}
         onHide={()=> handleClose("newNode")}
         keyboard={true}
       >
         <Form
-          onSubmit={()=> console.log("enviando")}
+          /**onSubmit={onAddNode}*/
           >
           <Modal.Body>
             <Form.Group>
               <Form.Label>
-                Identificador <span className="text-danger">*</span>
+                Identificador 
               </Form.Label>  
               <Form.Control
                 placeholder={"nombre del nodo"}
                 type="text"
-              />
+                value={currentNode?currentNode:""}
+                onChange={(e)=> setCurrentNode(e.target.value)}
+              />    
               <Form.Label>
-                Cantidad de Aristas <span className="text-danger">*</span>
-              </Form.Label>
+                From 
+              </Form.Label>  
+               
               <Form.Control
-                placeholder={"cantidad de aristas"}
-                type="number"
-                min="0"
-                onChange={(e)=> setNumLinks(e.target.value)}
-              />
-              {
-                numLinks > 0 &&
-                (
-
-                  Array.from({length: numLinks}).map((k,v) => (                   
-                      <Form.Group key={k}>
-                        <Form.Label>
-                          Arista  <span className="text-danger">*</span>
-                        </Form.Label>
-                        <Row>
-                          <Col>
-                            <Form.Control
-                              placeholder={"nombre del nodo origen"}
-                              type="text"
-                            />
-                          </Col>
-                          <Col>
-                            <Form.Control
-                              placeholder={"nombre del nodo destino"}
-                              type="text"
-                            />
-                          </Col>
-                        </Row>
-                      </Form.Group>
-                  ))
-
-                )
-              }              
+                placeholder={"From"}
+                type="text"
+                value={currentFrom?currentFrom:""}
+                onChange={(e)=> setCurrentFrom(e.target.value)}
+              />    
+              <Form.Label>
+                To 
+              </Form.Label>
+               <Form.Control
+                placeholder={"To"}
+                type="text"
+                value={currentTo?currentTo:""}
+                onChange={(e)=> setCurrentTo(e.target.value)}
+              />                  
             </Form.Group> 
           </Modal.Body>
           <Modal.Footer>
             <Button variant="secondary" onClick={()=> handleClose("newNode") }>
               Close
             </Button>
-            <Button variant="primary" onClick={()=> onSetLinks() }>
+            <Button variant="primary" onClick={onAddNode}>
               Save Changes
             </Button>
+            
           </Modal.Footer>
           </Form>
       </Modal>
