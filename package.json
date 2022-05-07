@@ -36,6 +36,7 @@
     "react-redux": "^7.2.8",
     "react-router-dom": "^5.2.0",
     "react-scripts": "4.0.3",
+    "react-to-image": "^0.1.0",
     "react-upload-file": "^2.0.0-beta.5",
     "redux-thunk": "^2.3.0",
     "typescript": "^4.2.4",

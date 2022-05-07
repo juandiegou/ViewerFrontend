@@ -11,6 +11,8 @@ export const ViewerGraph = () => {
   const [network, setNetwork] = useState();
   const [currentEvent, setCurrentEvent] = useState();
   const [currentNode, setCurrentNode] = useState();
+  const [currentFrom, setCurrentFrom] = useState();
+  const [currentTo, setCurrentTo] = useState();
   const { ref, isLoading, getPng } = useToImage();
   const [modal, setModal]= useState({"upload":false, "newNode":false, "setLinks":false});
   const [config, setCofig] = useState( {
@@ -64,13 +66,26 @@ export const ViewerGraph = () => {
       const x =currentEvent.pointer.DOM.x;
       const y =currentEvent.pointer.DOM.y;
       data.nodes.push({id:idTemp,label:currentNode, x,y});
+      //
+      
       setData({...data});
       network.setData(data);
       setCurrentNode();
       setCurrentEvent();   
     }
+   if(currentFrom && currentTo){
+      console.log(currentFrom, currentTo)
+      data.edges.push({from : currentFrom, to : currentTo, });
+      setData({...data});
+      network.setData(data);
+      setCurrentFrom();
+      setCurrentTo(); 
+
+    }
+
     handleClose("newNode");
   }
+  
 
   return (
     <div className="graph">
@@ -87,7 +102,8 @@ export const ViewerGraph = () => {
           </Button>
           <Button>
            Exportar Archivo
-          </Button>          
+          </Button> 
+                  
         </Card.Header>
         <Card.Body > 
         <ResponsiveEmbed aspectRatio={'4by3'}  ref={ref}>
@@ -137,14 +153,33 @@ export const ViewerGraph = () => {
           <Modal.Body>
             <Form.Group>
               <Form.Label>
-                Identificador <span className="text-danger">*</span>
+                Identificador 
               </Form.Label>  
               <Form.Control
                 placeholder={"nombre del nodo"}
                 type="text"
                 value={currentNode?currentNode:""}
                 onChange={(e)=> setCurrentNode(e.target.value)}
-              />           
+              />    
+              <Form.Label>
+                From 
+              </Form.Label>  
+               
+              <Form.Control
+                placeholder={"From"}
+                type="text"
+                value={currentFrom?currentFrom:""}
+                onChange={(e)=> setCurrentFrom(e.target.value)}
+              />    
+              <Form.Label>
+                To 
+              </Form.Label>
+               <Form.Control
+                placeholder={"To"}
+                type="text"
+                value={currentTo?currentTo:""}
+                onChange={(e)=> setCurrentTo(e.target.value)}
+              />                  
             </Form.Group> 
           </Modal.Body>
           <Modal.Footer>
@@ -154,6 +189,7 @@ export const ViewerGraph = () => {
             <Button variant="primary" onClick={onAddNode}>
               Save Changes
             </Button>
+            
           </Modal.Footer>
           </Form>
       </Modal>
