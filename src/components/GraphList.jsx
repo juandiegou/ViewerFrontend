@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import * as GraphServer from "./GraphServer";
 import GraphItem from "./GraphItem";
+import { Row, Col } from "react-bootstrap";
 const GraphList = () => {
     const [graphs, setGraphs] = useState([]);
 
@@ -22,8 +23,12 @@ const GraphList = () => {
         <div className="row ">
         {
             graphs.map( (graph) => (
-               
-                <GraphItem  graph={graph}/>
+              
+              <Row>
+                <Col>
+                  <GraphItem  graph={graph}/>
+                </Col>
+              </Row>
    
             ))
         }

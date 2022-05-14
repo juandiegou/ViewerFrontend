@@ -29,7 +29,7 @@ export const ViewerGraph = () => {
     initialZoom: 1,
   });
   const [data, setData] = useState({
-    nodes: [ { id: 1, label: "Harry" }, { id: 2, label:"Sally" }, { id: 3 ,label: "Alice" } ],
+    nodes: [ { id: 1, label: "A" }, { id: 2, label:"B" }, { id: 3 ,label: "D" } ],
     edges: [ { from: 1, to: 2 }, { from: 1, to: 3 } ],
   });
 
@@ -56,7 +56,10 @@ export const ViewerGraph = () => {
     selectNode: function(event) {
       console.log(event);
     },
-
+    selectEdge: function(event) {
+      console.log(data.nodes);     
+      console.log(event);
+    },
   }
 
   const onAddNode =() => {

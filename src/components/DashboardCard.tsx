@@ -13,6 +13,7 @@ import GraphList from './GraphList';
 export const DashboardCard = () => {
     return (
        
+      
     <GraphList/>
         
     )
