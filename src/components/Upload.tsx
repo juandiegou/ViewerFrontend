@@ -14,7 +14,7 @@ export const Upload = () => {
   };
 
   const JsonA = async ()  =>  {
-    //console.log(files[0].file);
+    
     await GraphServer.registerGraph(files[0].file);
     window.location.reload();
     
