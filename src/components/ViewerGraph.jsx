@@ -1,11 +1,15 @@
-import React, {useState} from 'react'
+import React, { useState } from 'react'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Card, Button, Modal, Form , Col, Row } from 'react-bootstrap';
+import { Card, Button, Modal, Form, Col, Row } from 'react-bootstrap';
 import ResponsiveEmbed from 'react-bootstrap/ResponsiveEmbed';
 import Graph from "react-graph-vis";
 import { useToImage } from '@hcorta/react-to-image'
 import { Upload } from "./Upload";
 import "../assets/css/graph.css";
+import * as GraphServer from "./GraphServer";
+import { forEachChild } from 'typescript';
+import { fileURLToPath } from 'url';
+import { writeFile } from 'fs';
 
 export const ViewerGraph = () => {
   const [network, setNetwork] = useState();
@@ -14,25 +18,28 @@ export const ViewerGraph = () => {
   const [currentFrom, setCurrentFrom] = useState();
   const [currentTo, setCurrentTo] = useState();
   const { ref, isLoading, getPng } = useToImage();
-  const [modal, setModal]= useState({"upload":false, "newNode":false, "setLinks":false});
-  const [config, setCofig] = useState( {
+  let jvacio = require('../assets/files/jsonvacio.json');
+  let eje = require('../assets/files/ejemplo.json');
+
+  const [modal, setModal] = useState({ "upload": false, "newNode": false, "setLinks": false });
+  const [config, setCofig] = useState({
     nodeHighlightBehavior: true,
     node: {
-        color: 'red',
-        size: 120,
-        highlightStrokeColor: 'black'
+      color: 'red',
+      size: 120,
+      highlightStrokeColor: 'black'
     },
     link: {
-        color: 'black',
-        highlightColor: 'black'
+      color: 'black',
+      highlightColor: 'black'
     },
     initialZoom: 1,
   });
-  const [data, setData] = useState({
-    nodes: [ { id: 1, label: "Harry" }, { id: 2, label:"Sally" }, { id: 3 ,label: "Alice" } ],
-    edges: [ { from: 1, to: 2 }, { from: 1, to: 3 } ],
+ const [data, setData] = useState({
+    nodes: [],
+    edges: []
   });
-
+ 
   const [options, setOptions] = useState({
     manipulation: {
       enabled: false,
@@ -44,72 +51,95 @@ export const ViewerGraph = () => {
       deleteEdge: true,
     }
   });
-  
-  const handleShow = (modalName) => setModal({...modal, [modalName]:true});
-  const handleClose = (modalName) => setModal({...modal, [modalName]:false});
 
-  const events ={
-    doubleClick : function(event) {
+  const handleShow = (modalName) => setModal({ ...modal, [modalName]: true });
+  const handleClose = (modalName) => setModal({ ...modal, [modalName]: false });
+
+  const events = {
+    doubleClick: function (event) {
       setCurrentEvent(event);
       handleShow("newNode");
     },
-    selectNode: function(event) {
+    selectNode: function (event) {
       console.log(event);
     },
 
   }
 
-  const onAddNode =() => {
-    if(currentNode){
-      console.log(network, data,currentEvent);
-      const idTemp=data.nodes.length+1;
-      const x =currentEvent.pointer.DOM.x;
-      const y =currentEvent.pointer.DOM.y;
-      data.nodes.push({id:idTemp,label:currentNode, x,y});
+
+  const guardarGrafo =  async ()  =>  {
+  
+    await GraphServer.registerGraph(JSON.stringify(jvacio));
+};
+
+  const onAddNode = () => {
+    if (currentNode) {
+     
+      const idTemp = data.nodes.length + 1;
+      const x = currentEvent.pointer.DOM.x;
+      const y = currentEvent.pointer.DOM.y;
+      data.nodes.push({ id: idTemp, label: currentNode, x, y });
       //
-      
-      setData({...data});
+
+      setData({ ...data });
       network.setData(data);
       setCurrentNode();
-      setCurrentEvent();   
+      setCurrentEvent();
+      var ex = parseInt(x, 10)
+      var ey = parseInt(y, 10)
+   
+      jvacio.graph.data.push({ide:idTemp,label:currentNode , coordenates:{x:ex,y:ey}, linkedTo:[], radius:0,type:'Grafo no dirigido'})
+  
     }
-   if(currentFrom && currentTo){
-      console.log(currentFrom, currentTo)
-      data.edges.push({from : currentFrom, to : currentTo, });
-      setData({...data});
+    if (currentFrom && currentTo) {
+      data.edges.push({ from: currentFrom, to: currentTo, });
+      setData({ ...data });
       network.setData(data);
+      jvacio.graph.data.forEach(element => {
+        if(element.ide == currentFrom){
+          element.linkedTo.push({nodeId: currentTo, distance: 0})
+        }
+
+      });
       setCurrentFrom();
-      setCurrentTo(); 
+      setCurrentTo();
 
     }
 
     handleClose("newNode");
   }
-  
+
 
   return (
     <div className="graph">
       <Card>
         <Card.Header>
-         <Button variant="info" onClick={() => handleShow("upload")} >
-           Subir Archivo
+          <Button variant="info" onClick={() => handleShow("upload")} >
+            Subir Archivo
           </Button>
-          <Button 
-          variant="info"
-          onClick={()=>getPng()}
+          <Button
+            variant="info"
+            onClick={() => getPng()}
           >
-           Descargar Imagen
+            Descargar Imagen
           </Button>
+          <Button
+            variant="info"
+            onClick={() => guardarGrafo()}
+          >
+            Guardar grafo
+          </Button>
+
           <Button>
-           Exportar Archivo
-          </Button> 
-                  
+            Exportar Archivo
+          </Button>
+
         </Card.Header>
-        <Card.Body > 
-        <ResponsiveEmbed aspectRatio={'4by3'}  ref={ref}>
+        <Card.Body >
+          <ResponsiveEmbed aspectRatio={'4by3'} ref={ref}>
             <div className="container__graph-area">
               <picture>
-                <Graph 
+                <Graph
                   graph={data}
                   options={options}
                   events={events}
@@ -117,7 +147,7 @@ export const ViewerGraph = () => {
                     setNetwork(network);
                   }}
                 />
-              </picture>                
+              </picture>
             </div>
           </ResponsiveEmbed>
         </Card.Body>
@@ -130,68 +160,68 @@ export const ViewerGraph = () => {
          * modal of upload file
          */
         show={modal.upload}
-        onHide={()=> handleClose("upload")}
+        onHide={() => handleClose("upload")}
         keyboard={true}
       >
-        <Modal.Body>       
+        <Modal.Body>
           <Upload></Upload>
-          <Button variant="secondary" onClick={(e)=> handleClose("upload")}>
+          <Button variant="secondary" onClick={(e) => handleClose("upload")}>
             Close
           </Button>
         </Modal.Body>
       </Modal>
-      
+
       <Modal
         /** modal of new node */
         show={modal.newNode}
-        onHide={()=> handleClose("newNode")}
+        onHide={() => handleClose("newNode")}
         keyboard={true}
       >
         <Form
-          /**onSubmit={onAddNode}*/
-          >
+        /**onSubmit={onAddNode}*/
+        >
           <Modal.Body>
             <Form.Group>
               <Form.Label>
-                Identificador 
-              </Form.Label>  
+                Identificador
+              </Form.Label>
               <Form.Control
                 placeholder={"nombre del nodo"}
                 type="text"
-                value={currentNode?currentNode:""}
-                onChange={(e)=> setCurrentNode(e.target.value)}
-              />    
+                value={currentNode ? currentNode : ""}
+                onChange={(e) => setCurrentNode(e.target.value)}
+              />
               <Form.Label>
-                From 
-              </Form.Label>  
-               
+                From
+              </Form.Label>
+
               <Form.Control
                 placeholder={"From"}
                 type="text"
-                value={currentFrom?currentFrom:""}
-                onChange={(e)=> setCurrentFrom(e.target.value)}
-              />    
+                value={currentFrom ? currentFrom : ""}
+                onChange={(e) => setCurrentFrom(e.target.value)}
+              />
               <Form.Label>
-                To 
+                To
               </Form.Label>
-               <Form.Control
+              <Form.Control
                 placeholder={"To"}
                 type="text"
-                value={currentTo?currentTo:""}
-                onChange={(e)=> setCurrentTo(e.target.value)}
-              />                  
-            </Form.Group> 
+                value={currentTo ? currentTo : ""}
+                onChange={(e) => setCurrentTo(e.target.value)}
+              />
+            </Form.Group>
           </Modal.Body>
           <Modal.Footer>
-            <Button variant="secondary" onClick={()=> handleClose("newNode") }>
+            <Button variant="secondary" onClick={() => handleClose("newNode")}>
               Close
             </Button>
             <Button variant="primary" onClick={onAddNode}>
               Save Changes
             </Button>
-            
+
           </Modal.Footer>
-          </Form>
+        </Form>
       </Modal>
     </div>
   )

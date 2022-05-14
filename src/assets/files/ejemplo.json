@@ -1,0 +1,111 @@
+{
+  "graph": 
+    {
+      "name": "Node 1",
+      "data": [
+        {
+          "ide": 1,
+          "label": "N1",
+          "type": "Object",
+          "linkedTo": [
+            {
+              "nodeId": 2,
+              "distance": 120
+            },
+            {
+              "nodeId": 4,
+              "distance": 87
+            },
+            {
+              "nodeId": 5,
+              "distance": 101
+            }
+          ],
+          "radius": 0.4,
+          "coordenates": {
+            "x": 25,
+            "y": 34
+          }
+        },
+        {
+          "ide": 2,
+          "label": "N2",
+         
+          "type": "function",
+          "linkedTo": [
+            {
+              "nodeId": 1,
+              "distance": 120
+            },
+            {
+              "nodeId": 7,
+              "distance": 45
+            },
+            {
+              "nodeId": 3,
+              "distance": 17
+            }
+          ],
+          "radius": 0.2,
+          "coordenates": {
+            "x": 37,
+            "y": 15
+          }
+        },
+        {
+          "ide": 3,
+          "label": "N3",
+         
+          "type": "object",
+          "linkedTo": [
+            {
+              "nodeId": 5,
+              "distance": 86
+            },
+            {
+              "nodeId": 2,
+              "distance": 17
+            },
+            {
+              "nodeId": 9,
+              "distance": 15
+            }
+          ],
+          "radius": 1,
+          "coordenates": {
+            "x": 75,
+            "y": 43
+          }
+        },
+        {
+          "ide": 12,
+          "label": "N12",
+         
+          "type": "function",
+          "linkedTo": [
+            {
+              "nodeId": 14,
+              "distance": 120
+            },
+            {
+              "nodeId": 17,
+              "distance": 87
+            },
+            {
+              "nodeId": 11,
+              "distance": 101
+            }
+          ],
+          "radius": 0.6,
+          "coordenates": {
+            "x": 123,
+            "y": 167
+          }
+        }
+      ]
+    }
+  ,
+  "generalData1": 100,
+  "generalData2": "Alg",
+  "generalData3": 300
+}
