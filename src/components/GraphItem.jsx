@@ -1,9 +1,13 @@
 import React, { useEffect, useState } from "react";
+import { useHistory } from 'react-router-dom';
 import { Button, Modal,Form, Row, Col, Container } from 'react-bootstrap';
+import Loader from '../Loader';
+import { addNotification } from "../actions/others";
 import * as GraphServer from "./GraphServer";
 
 
 const GraphItem =  (props) => {
+  const navigate = useHistory ();
   const [ loading, setLoading ] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
   const [data, setData] = useState();
@@ -12,15 +16,18 @@ const GraphItem =  (props) => {
   const handleShow = () => setShowInfo(true);
    // const [graph, setGraph] = useState([]);
     const getbyId = async (id) => {
+      setLoading(true);
         try {
             const res = await GraphServer.getGraphbyId(id);
-            const data = res.json();
+            const data = await res.json();
             setData([data]);
             handleShow();
             console.log(data,'sa')
+            addNotification("success", "Success", "Graph loaded");
         } catch (error) {
             console.log(error)
         }
+      setLoading(false);
     }
     const deleteG = async (id) => {
         try {
@@ -28,6 +35,7 @@ const GraphItem =  (props) => {
             const res = await GraphServer.deleteGraph(id);
             // window.location.reload(false);
             const data = await res.json();
+            addNotification("warning", "Success", "Graph deleted");
             
             console.log(data,'sa')
         } catch (error) {
@@ -37,12 +45,7 @@ const GraphItem =  (props) => {
  
     const onVisualize  = () =>
     {
-      console.log('visualize');
-      console.log(data[0]);
-      data[0].graph?.data?.map(item => {
-        console.log(item);
-      }
-      );
+      navigate.push('/visualizacion', {data: data[0] });
     }
 
     // console.log(props.graph.id)
@@ -50,13 +53,24 @@ const GraphItem =  (props) => {
     <>
       <Container>
         <div className="col-md-12">
-          <div className="card card-body">
-        <h3 className="card-tittle">{props.graph.graph.name}</h3>
-        <h3 className="card-text">id: {props.graph.id}</h3>
-        <Button variant="primary" onClick={() => getbyId(props.graph.id)}>Details</Button>
-        <Button variant="alert" onClick={() => deleteG(props.graph.id)}>Delete</Button>
-          
-          </div>
+            {
+              loading ? (
+                // className="spinner-border text-primary" role="status"
+                <div>
+                  <Loader />
+                </div>
+              ) : (
+
+                <div className="card card-body">
+                  <h3 className="card-tittle">{props.graph.graph.name}</h3>
+                  <h3 className="card-text">id: {props.graph.id}</h3>
+                  <Button variant="primary" onClick={() => getbyId(props.graph.id)}>Details</Button>
+                  <Button variant="alert" onClick={() => deleteG(props.graph.id)}>Delete</Button>
+                    
+                </div>
+              )
+            }
+
           <Modal
           show={showInfo}
           keyboard={true}

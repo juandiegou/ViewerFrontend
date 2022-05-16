@@ -1,8 +1,8 @@
 import React, {useEffect, useState} from 'react';
 import { Dropzone, FileItem, FileValidated } from "@dropzone-ui/react";
-import * as GraphServer from "./GraphServer";
-import { parseJsonSourceFileConfigFileContent } from 'typescript';
 import { Button } from 'react-bootstrap';
+import * as GraphServer from "./GraphServer";
+import { addNotification } from "../actions/others";
 
 export const Upload = () => {
   //let estado = false;
@@ -14,9 +14,10 @@ export const Upload = () => {
   };
 
   const JsonA = async ()  =>  {
-    //console.log(files[0].file);
+    
     await GraphServer.registerGraph(files[0].file);
-    window.location.reload();
+    // window.location.reload();
+    addNotification("sucess","success", "Graph uploaded successfully");
     
     
 };
