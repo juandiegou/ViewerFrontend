@@ -19,6 +19,7 @@ export const ViewerGraph = () => {
   const [currentTo, setCurrentTo] = useState();
   const { ref, isLoading, getPng } = useToImage();
   let jvacio = require('../assets/files/jsonvacio.json');
+  var casa = true
   
 
   const [modal, setModal] = useState({ "upload": false, "newNode": false, "setLinks": false });
@@ -67,8 +68,9 @@ export const ViewerGraph = () => {
   const events = {
     click:function(event){
       setCurrentEvent(event);
+      if(state){
       network.setData(data)
- 
+    }
     },
     doubleClick: function (event) {
       setCurrentEvent(event);
@@ -115,9 +117,10 @@ export const ViewerGraph = () => {
       setData({ ...data });
       network.setData(data);
       jvacio.graph.data.forEach(element => {
-        if(element.ide === currentFrom){
+        if(element.ide == currentFrom){
           element.linkedTo.push({nodeId: currentTo, distance: 0})
         }
+        console.log(jvacio)
 
       });
       setCurrentFrom();
@@ -128,6 +131,7 @@ export const ViewerGraph = () => {
     handleClose("newNode");
     
   }
+ 
   useEffect(() => {
     pintar()
   }, [])
@@ -145,6 +149,7 @@ export const ViewerGraph = () => {
       }else{
       addNotification('warning','info','No data');
     }
+    casa = false
   }
   
  

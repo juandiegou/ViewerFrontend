@@ -16,7 +16,7 @@ export const Upload = () => {
   const JsonA = async ()  =>  {
     
     await GraphServer.registerGraph(files[0].file);
-    // window.location.reload();
+    window.location.reload();
     addNotification("sucess","success", "Graph uploaded successfully");
     
     
