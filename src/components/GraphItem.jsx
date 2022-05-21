@@ -20,9 +20,7 @@ const GraphItem =  (props) => {
         try {
             const res = await GraphServer.getGraphbyId(id);
             const data = await res.json();
-            setData([data]);
-            handleShow();
-            console.log(data,'sa')
+            setData([data])
             addNotification("success", "Success", "Graph loaded");
         } catch (error) {
             console.log(error)
@@ -33,11 +31,10 @@ const GraphItem =  (props) => {
         try {
 
             const res = await GraphServer.deleteGraph(id);
-            // window.location.reload(false);
-            const data = await res.json();
+            window.location.reload(false);
             addNotification("warning", "Success", "Graph deleted");
             
-            console.log(data,'sa')
+           
         } catch (error) {
             console.log(error)
         }

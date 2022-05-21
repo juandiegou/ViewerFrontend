@@ -8,9 +8,7 @@ import { Upload } from "./Upload";
 import { addNotification } from "../actions/others";
 import "../assets/css/graph.css";
 import * as GraphServer from "./GraphServer";
-import { forEachChild } from 'typescript';
-import { fileURLToPath } from 'url';
-import { writeFile } from 'fs';
+
 
 export const ViewerGraph = () => {
   const { state } = useLocation();
@@ -21,7 +19,8 @@ export const ViewerGraph = () => {
   const [currentTo, setCurrentTo] = useState();
   const { ref, isLoading, getPng } = useToImage();
   let jvacio = require('../assets/files/jsonvacio.json');
-  let eje = require('../assets/files/ejemplo.json');  
+  var casa = true
+  
 
   const [modal, setModal] = useState({ "upload": false, "newNode": false, "setLinks": false });
   const [config, setCofig] = useState({
@@ -42,21 +41,8 @@ export const ViewerGraph = () => {
     edges: []
   });
 
-  useEffect(() => {
-    if (state){
-      console.log(state);
-      state.data.graph?.data?.map((node, index) => {
-        console.log(node);
-        data.nodes.push({id: index+1, label:node.label});
-        node?.linkedTo.map((arista) => {
-          data.edges.push({ from: node.ide, to: arista.nodeId})
-        })
-      })
-      setData({...data});
-    }else{
-      addNotification('warning','info','No data');
-    }
-  }, [])
+  
+  
  
   const [options, setOptions] = useState({
     manipulation: {
@@ -69,21 +55,32 @@ export const ViewerGraph = () => {
       deleteEdge: true,
     }
   });
+  const limpiar = () => {
+    data.nodes=[];
+    data.edges=[];
+    setData({...data})
+    network.setData(data)
+  }
 
   const handleShow = (modalName) => setModal({ ...modal, [modalName]: true });
   const handleClose = (modalName) => setModal({ ...modal, [modalName]: false });
 
   const events = {
+    click:function(event){
+      setCurrentEvent(event);
+      if(state){
+      network.setData(data)
+    }
+    },
     doubleClick: function (event) {
       setCurrentEvent(event);
       handleShow("newNode");
     },
     selectNode: function (event) {
-      console.log(event);
+      
     },
     selectEdge: function(event) {
-      console.log(data.nodes);     
-      console.log(event);
+      
     },
   }
 
@@ -96,6 +93,7 @@ export const ViewerGraph = () => {
 };
 
   const onAddNode = () => {
+    
     if (currentNode) {
      
       const idTemp = data.nodes.length + 1;
@@ -111,7 +109,7 @@ export const ViewerGraph = () => {
       var ex = parseInt(x, 10)
       var ey = parseInt(y, 10)
    
-      jvacio.graph.data.push({ide:idTemp,label:currentNode , coordenates:{x:ex,y:ey}, linkedTo:[], radius:1,type:'Grafo no dirigido'})
+      jvacio.graph.data.push({ide:idTemp,label:currentNode , coordenates:{x:ex,y:ey}, linkedTo:[], radius:1,type:'Grafo dirigido'})
   
     }
     if (currentFrom && currentTo) {
@@ -119,9 +117,10 @@ export const ViewerGraph = () => {
       setData({ ...data });
       network.setData(data);
       jvacio.graph.data.forEach(element => {
-        if(element.ide === currentFrom){
+        if(element.ide == currentFrom){
           element.linkedTo.push({nodeId: currentTo, distance: 0})
         }
+        console.log(jvacio)
 
       });
       setCurrentFrom();
@@ -132,6 +131,28 @@ export const ViewerGraph = () => {
     handleClose("newNode");
     
   }
+ 
+  useEffect(() => {
+    pintar()
+  }, [])
+ 
+  const pintar = () => {
+    if (state){
+      state.data.graph?.data?.map((node, index) => {
+        data.nodes.push({id: index+1, label:node.label,x:node.coordenates.x,y:node.coordenates.y });
+        setData({ ...data });
+        node?.linkedTo.map((arista) => {
+        data.edges.push({ from: node.ide, to: arista.nodeId})
+        setData({ ...data });
+        })
+      })
+      }else{
+      addNotification('warning','info','No data');
+    }
+    casa = false
+  }
+  
+ 
 
 
   return (
@@ -156,6 +177,12 @@ export const ViewerGraph = () => {
 
           <Button>
             Exportar Archivo
+          </Button>
+          <Button
+            variant="info"
+            onClick={() => limpiar()}
+          >
+            Limpiar
           </Button>
 
         </Card.Header>
