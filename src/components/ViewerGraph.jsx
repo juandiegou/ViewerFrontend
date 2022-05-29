@@ -1,103 +1,207 @@
-import React, {useState} from 'react'
-import { faUpload,faDownload,faFileExcel } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Card, Button, Modal, Form , Col, Row } from 'react-bootstrap';
+import React, { useState, useEffect, useMemo } from 'react'
+import { useLocation } from 'react-router-dom';
+import { Card, Button, Modal, Form, Col, Row } from 'react-bootstrap';
 import ResponsiveEmbed from 'react-bootstrap/ResponsiveEmbed';
-import { Graph } from "react-d3-graph";
+import Graph from "react-graph-vis";
+import { useToImage } from '@hcorta/react-to-image'
 import { Upload } from "./Upload";
+import { addNotification } from "../actions/others";
 import "../assets/css/graph.css";
-const d3ToPng = require('d3-svg-to-png');	
+import * as GraphServer from "./GraphServer";
 
 
 export const ViewerGraph = () => {
-  const [numLinks, setNumLinks] = useState();
-  const [modal, setModal]= useState({"upload":false, "newNode":false, "setLinks":false});
-  const [config, setCofig] = useState( {
+  const { state } = useLocation();
+  const [network, setNetwork] = useState({});
+  const [currentEvent, setCurrentEvent] = useState();
+  const [currentNode, setCurrentNode] = useState();
+  const [currentFrom, setCurrentFrom] = useState();
+  const [currentTo, setCurrentTo] = useState();
+  const { ref, isLoading, getPng } = useToImage();
+  let jvacio = require('../assets/files/jsonvacio.json');
+  var casa = true
+  
+
+  const [modal, setModal] = useState({ "upload": false, "newNode": false, "setLinks": false });
+  const [config, setCofig] = useState({
     nodeHighlightBehavior: true,
     node: {
-        color: 'red',
-        size: 120,
-        highlightStrokeColor: 'black'
+      color: 'red',
+      size: 120,
+      highlightStrokeColor: 'black'
     },
     link: {
-        color: 'black',
-        highlightColor: 'black'
+      color: 'black',
+      highlightColor: 'black'
     },
     initialZoom: 1,
   });
-  const [data, setData] = useState({
-    nodes: [ { id: "Harry" }, { id: "Sally" }, { id: "Alice" } ],
-    links: [ { source: "Harry", target: "Sally" }, { source: "Harry", target: "Alice" } ],
+ const [data, setData] = useState({
+    nodes: [],
+    edges: []
   });
-  const handleShow = (modalName) => setModal({...modal, [modalName]:true});
-  const handleClose = (modalName) => setModal({...modal, [modalName]:false});
 
-  const onClickGraph = () => {
-    handleShow("newNode");
-  };
-
-  const onSetLinks = () => {
-    handleClose("newNode");
-    if (numLinks ) {
-      handleShow("setLinks");
+  
+  
+ 
+  const [options, setOptions] = useState({
+    manipulation: {
+      enabled: true,
+      initiallyActive: false,
+      addNode: true,
+      addEdge: true,
+      editEdge: true,
+      deleteNode: true,
+      deleteEdge: true,
     }
-
+  });
+  const limpiar = () => {
+    data.nodes=[];
+    data.edges=[];
+    setData({...data})
+    network.setData(data)
   }
 
+  const handleShow = (modalName) => setModal({ ...modal, [modalName]: true });
+  const handleClose = (modalName) => setModal({ ...modal, [modalName]: false });
+
+  const events = {
+    click:function(event){
+      setCurrentEvent(event);
+      if(state){
+      network.setData(data)
+    }
+    },
+    doubleClick: function (event) {
+      setCurrentEvent(event);
+      handleShow("newNode");
+    },
+    selectNode: function (event) {
+      
+    },
+    selectEdge: function(event) {
+      
+    },
+  }
+
+
+  const guardarGrafo =  async ()  =>  {
+  
+    await GraphServer.registerGraph(JSON.stringify(jvacio));
+    addNotification("success", "Success", "Graph saved");
+
+};
+
+  const onAddNode = () => {
     
-  const onDownload = () => {
-    d3ToPng("svg",'graph',{scale: 5, format: "png", quality: 1});
+    if (currentNode) {
+     
+      const idTemp = data.nodes.length + 1;
+      const x = currentEvent.pointer.DOM.x;
+      const y = currentEvent.pointer.DOM.y;
+      data.nodes.push({ id: idTemp, label: currentNode, x, y });
+      //
+
+      setData({ ...data });
+      network.setData(data);
+      setCurrentNode();
+      setCurrentEvent();
+      var ex = parseInt(x, 10)
+      var ey = parseInt(y, 10)
+   
+      jvacio.graph.data.push({ide:idTemp,label:currentNode , coordenates:{x:ex,y:ey}, linkedTo:[], radius:1,type:'Grafo dirigido'})
+  
+    }
+    if (currentFrom && currentTo) {
+      data.edges.push({ from: currentFrom, to: currentTo, });
+      setData({ ...data });
+      network.setData(data);
+      jvacio.graph.data.forEach(element => {
+        if(element.ide == currentFrom){
+          element.linkedTo.push({nodeId: currentTo, distance: 0})
+        }
+        console.log(jvacio)
+
+      });
+      setCurrentFrom();
+      setCurrentTo();
+
+    }
+    addNotification("success", "Success", "Was added");
+    handleClose("newNode");
+    
   }
-
-  const onClickNode = (nodeId) => {
-    console.log(`Clicked node ${nodeId}`);
-  };
-
-  const onDoubleClickNode = (nodeId) => {
-    console.log(`Double clicked node ${nodeId}`);
-  };
-
-  const onRightClickNode = (event, nodeId) => {
-    console.log(`Right clicked node ${nodeId}`);
-  };
-
-  const onClickLink = (source, target) => {
-    console.log(`Clicked link between ${source} and ${target}`);
-  };
+ 
+  useEffect(() => {
+    pintar()
+  }, [])
+ 
+  const pintar = () => {
+    if (state){
+      state.data.graph?.data?.map((node, index) => {
+        data.nodes.push({id: index+1, label:node.label,x:node.coordenates.x,y:node.coordenates.y });
+        setData({ ...data });
+        node?.linkedTo.map((arista) => {
+        data.edges.push({ from: node.ide, to: arista.nodeId})
+        setData({ ...data });
+        })
+      })
+      }else{
+      addNotification('warning','info','No data');
+    }
+    casa = false
+  }
+  
+ 
 
   return (
     <div className="graph">
       <Card>
         <Card.Header>
-         <Button variant="info" onClick={() => handleShow("upload")} >
-           Subir Archivo
+          <Button variant="info" onClick={() => handleShow("upload")} >
+            Subir Archivo
           </Button>
-          <Button 
-          variant="info"
-          onClick={() => onDownload()}
+          <Button
+            variant="info"
+            onClick={() => getPng()}
           >
-           Descargar Imagen
+            Descargar Imagen
           </Button>
+          <Button
+            variant="info"
+            onClick={() => guardarGrafo()}
+          >
+            Guardar grafo
+          </Button>
+
           <Button>
-           Exportar Archivo
-          </Button>          
+            Exportar Archivo
+          </Button>
+          <Button
+            variant="info"
+            onClick={() => limpiar()}
+          >
+            Limpiar
+          </Button>
+
         </Card.Header>
-        <Card.Body>
-        <ResponsiveEmbed aspectRatio={'4by3'}>
+        <Card.Body >
+          <ResponsiveEmbed aspectRatio={'4by3'} ref={ref}>
             <div className="container__graph-area">
               <picture>
-                <Graph 
-                  id="graph-id" // id is mandatory, if no id is defined rd3g will throw an error
-                  data={data}
-                  config={config}
-                  onClickNode={onClickNode}
-                  onClickLink={onClickLink}
-                  onClickGraph={onClickGraph}
-                  onRightClickNode={onRightClickNode}
-                  onDoubleClickNode={onDoubleClickNode}
-
+               { useMemo( () =>
+                <Graph
+                  graph={data}
+                  options={options}
+                  events={events}
+                  getNetwork={network => {
+                    setNetwork(network);
+                  }}
                 />
-              </picture>                
+                , [data, options]
+                )
+                }
+              </picture>
             </div>
           </ResponsiveEmbed>
         </Card.Body>
@@ -106,88 +210,72 @@ export const ViewerGraph = () => {
         </Card.Footer>
       </Card>
       <Modal
+        /**
+         * modal of upload file
+         */
         show={modal.upload}
-        onHide={()=> handleClose("upload")}
+        onHide={() => handleClose("upload")}
         keyboard={true}
       >
-        <Modal.Body>       
+        <Modal.Body>
           <Upload></Upload>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={(e)=> handleClose("upload")}>
+          <Button variant="secondary" onClick={(e) => handleClose("upload")}>
             Close
           </Button>
-          <Button variant="primary">
-            Save Changes
-          </Button>
-        </Modal.Footer>
+        </Modal.Body>
       </Modal>
 
       <Modal
+        /** modal of new node */
         show={modal.newNode}
-        onHide={()=> handleClose("newNode")}
+        onHide={() => handleClose("newNode")}
         keyboard={true}
       >
         <Form
-          onSubmit={()=> console.log("enviando")}
-          >
+        /**onSubmit={onAddNode}*/
+        >
           <Modal.Body>
             <Form.Group>
               <Form.Label>
-                Identificador <span className="text-danger">*</span>
-              </Form.Label>  
+                Identificador
+              </Form.Label>
               <Form.Control
                 placeholder={"nombre del nodo"}
                 type="text"
+                value={currentNode ? currentNode : ""}
+                onChange={(e) => setCurrentNode(e.target.value)}
               />
               <Form.Label>
-                Cantidad de Aristas <span className="text-danger">*</span>
+                From
+              </Form.Label>
+
+              <Form.Control
+                placeholder={"From"}
+                type="text"
+                value={currentFrom ? currentFrom : ""}
+                onChange={(e) => setCurrentFrom(e.target.value)}
+              />
+              <Form.Label>
+                To
               </Form.Label>
               <Form.Control
-                placeholder={"cantidad de aristas"}
-                type="number"
-                min="0"
-                onChange={(e)=> setNumLinks(e.target.value)}
+                placeholder={"To"}
+                type="text"
+                value={currentTo ? currentTo : ""}
+                onChange={(e) => setCurrentTo(e.target.value)}
               />
-              {
-                numLinks > 0 &&
-                (
-
-                  Array.from({length: numLinks}).map((k,v) => (                   
-                      <Form.Group key={k}>
-                        <Form.Label>
-                          Arista  <span className="text-danger">*</span>
-                        </Form.Label>
-                        <Row>
-                          <Col>
-                            <Form.Control
-                              placeholder={"nombre del nodo origen"}
-                              type="text"
-                            />
-                          </Col>
-                          <Col>
-                            <Form.Control
-                              placeholder={"nombre del nodo destino"}
-                              type="text"
-                            />
-                          </Col>
-                        </Row>
-                      </Form.Group>
-                  ))
-
-                )
-              }              
-            </Form.Group> 
+            </Form.Group>
           </Modal.Body>
           <Modal.Footer>
-            <Button variant="secondary" onClick={()=> handleClose("newNode") }>
+            <Button variant="secondary" onClick={() => handleClose("newNode")}>
               Close
             </Button>
-            <Button variant="primary" onClick={()=> onSetLinks() }>
+            <Button variant="primary" onClick={onAddNode}>
               Save Changes
             </Button>
+
           </Modal.Footer>
-          </Form>
+        </Form>
       </Modal>
     </div>
   )
