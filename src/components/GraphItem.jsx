@@ -60,10 +60,10 @@ const GraphItem = (props) => {
               <div className="card card-body">
                 <h3 className="card-tittle">{props.graph.graph.name}</h3>
                 <h3 className="card-text">id: {props.graph.id}</h3>
-                <Button 
-                  variant="primary" 
+                <Button
+                  variant="primary"
                   onClick={() => getbyId(props.graph.id)
-                  .finally( handleShow())}
+                    .finally(handleShow())}
                 >Details</Button>
                 <Button variant="alert" onClick={() => deleteG(props.graph.id)}>Delete</Button>
 

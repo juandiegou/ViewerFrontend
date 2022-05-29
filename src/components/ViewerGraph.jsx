@@ -18,7 +18,7 @@ export const ViewerGraph = () => {
   const [currentFrom, setCurrentFrom] = useState();
   const [currentTo, setCurrentTo] = useState();
   const { ref, isLoading, getPng } = useToImage();
-  const headers = [{key:'ide', name:'Identificador'}, {key:"label",name:'etiqueta'},{key:"type",name:"tipo"}, {key:"linkedTo",name: 'conexiones'}]
+  const headers = [{ key: 'ide', name: 'Identificador' }, { key: "label", name: 'etiqueta' }, { key: "type", name: "tipo" }, { key: "linkedTo", name: 'conexiones' }]
   let jvacio = require('../assets/files/jsonvacio.json');
   var casa = true
 
@@ -41,9 +41,6 @@ export const ViewerGraph = () => {
     nodes: [],
     edges: []
   });
-
-
-
 
   const [options, setOptions] = useState({
     manipulation: {
@@ -176,8 +173,8 @@ export const ViewerGraph = () => {
             Guardar grafo
           </Button>
 
-          <ExportJsonCsv 
-            className="btn btn-info" 
+          <ExportJsonCsv
+            className="btn btn-info"
             headers={headers}
             items={state.data.graph.data}
           >

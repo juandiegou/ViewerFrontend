@@ -85,6 +85,5 @@ export const Menu = () => {
       </Card>
 
     </div>
-
   );
 };
