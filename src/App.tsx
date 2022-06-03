@@ -1,4 +1,4 @@
-import React, { useState} from "react";
+import React from "react";
 import {
   BrowserRouter as Router,
   Switch,
@@ -6,15 +6,13 @@ import {
 } from "react-router-dom";
 import { Dashboard } from "./layout";
 import {ReactNotifications} from "react-notifications-component";
-import {Loader} from "./components/Loader";
+
 
 const App = () => {
-  const [loading, setLoading] = useState(false);
+
   return (
     <>
-      {
-        loading && <Loader />
-      }
+
       <ReactNotifications />
 
       <Router>

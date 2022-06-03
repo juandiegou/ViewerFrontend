@@ -9,16 +9,13 @@ import "./assets/css/index.css"
 import 'moment/locale/es'
 import reportWebVitals from "./reportWebVitals";
 
-
 const store = generateStore();
 
 ReactDOM.render(
   <React.StrictMode>
-   
     <Provider store={store}>
       <App />
     </Provider>
-
 
 
   </React.StrictMode>,
