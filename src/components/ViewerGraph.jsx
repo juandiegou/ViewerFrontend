@@ -6,7 +6,7 @@ import Graph from "react-graph-vis";
 import { useToImage } from '@hcorta/react-to-image'
 import { Upload } from "./Upload";
 import { addNotification } from "../actions/others";
-import "../assets/css/graph.css";
+import { ExportJsonCsv } from "react-export-json-csv";
 import * as GraphServer from "./GraphServer";
 
 
@@ -18,9 +18,10 @@ export const ViewerGraph = () => {
   const [currentFrom, setCurrentFrom] = useState();
   const [currentTo, setCurrentTo] = useState();
   const { ref, isLoading, getPng } = useToImage();
+  const headers = [{ key: 'ide', name: 'Identificador' }, { key: "label", name: 'etiqueta' }, { key: "type", name: "tipo" }, { key: "linkedTo", name: 'conexiones' }]
   let jvacio = require('../assets/files/jsonvacio.json');
   var casa = true
-  
+
 
   const [modal, setModal] = useState({ "upload": false, "newNode": false, "setLinks": false });
   const [config, setCofig] = useState({
@@ -36,14 +37,11 @@ export const ViewerGraph = () => {
     },
     initialZoom: 1,
   });
- const [data, setData] = useState({
+  const [data, setData] = useState({
     nodes: [],
     edges: []
   });
 
-  
-  
- 
   const [options, setOptions] = useState({
     manipulation: {
       enabled: true,
@@ -56,9 +54,9 @@ export const ViewerGraph = () => {
     }
   });
   const limpiar = () => {
-    data.nodes=[];
-    data.edges=[];
-    setData({...data})
+    data.nodes = [];
+    data.edges = [];
+    setData({ ...data })
     network.setData(data)
   }
 
@@ -66,36 +64,36 @@ export const ViewerGraph = () => {
   const handleClose = (modalName) => setModal({ ...modal, [modalName]: false });
 
   const events = {
-    click:function(event){
+    click: function (event) {
       setCurrentEvent(event);
-      if(state){
-      network.setData(data)
-    }
+      if (state) {
+        network.setData(data)
+      }
     },
     doubleClick: function (event) {
       setCurrentEvent(event);
       handleShow("newNode");
     },
     selectNode: function (event) {
-      
+
     },
-    selectEdge: function(event) {
-      
+    selectEdge: function (event) {
+
     },
   }
 
 
-  const guardarGrafo =  async ()  =>  {
-  
+  const guardarGrafo = async () => {
+
     await GraphServer.registerGraph(JSON.stringify(jvacio));
     addNotification("success", "Success", "Graph saved");
 
-};
+  };
 
   const onAddNode = () => {
-    
+
     if (currentNode) {
-     
+
       const idTemp = data.nodes.length + 1;
       const x = currentEvent.pointer.DOM.x;
       const y = currentEvent.pointer.DOM.y;
@@ -108,17 +106,17 @@ export const ViewerGraph = () => {
       setCurrentEvent();
       var ex = parseInt(x, 10)
       var ey = parseInt(y, 10)
-   
-      jvacio.graph.data.push({ide:idTemp,label:currentNode , coordenates:{x:ex,y:ey}, linkedTo:[], radius:1,type:'Grafo dirigido'})
-  
+
+      jvacio.graph.data.push({ ide: idTemp, label: currentNode, coordenates: { x: ex, y: ey }, linkedTo: [], radius: 1, type: 'Grafo dirigido' })
+
     }
     if (currentFrom && currentTo) {
       data.edges.push({ from: currentFrom, to: currentTo, });
       setData({ ...data });
       network.setData(data);
       jvacio.graph.data.forEach(element => {
-        if(element.ide == currentFrom){
-          element.linkedTo.push({nodeId: currentTo, distance: 0})
+        if (element.ide == currentFrom) {
+          element.linkedTo.push({ nodeId: currentTo, distance: 0 })
         }
         console.log(jvacio)
 
@@ -129,30 +127,31 @@ export const ViewerGraph = () => {
     }
     addNotification("success", "Success", "Was added");
     handleClose("newNode");
-    
+
   }
- 
+
   useEffect(() => {
+    console.log(state);
     pintar()
   }, [])
- 
+
   const pintar = () => {
-    if (state){
+    if (state) {
       state.data.graph?.data?.map((node, index) => {
-        data.nodes.push({id: index+1, label:node.label,x:node.coordenates.x,y:node.coordenates.y });
+        data.nodes.push({ id: index + 1, label: node.label, x: node.coordenates.x, y: node.coordenates.y });
         setData({ ...data });
         node?.linkedTo.map((arista) => {
-        data.edges.push({ from: node.ide, to: arista.nodeId})
-        setData({ ...data });
+          data.edges.push({ from: node.ide, to: arista.nodeId })
+          setData({ ...data });
         })
       })
-      }else{
-      addNotification('warning','info','No data');
+    } else {
+      addNotification('warning', 'info', 'No data');
     }
     casa = false
   }
-  
- 
+
+
 
   return (
     <div className="graph">
@@ -174,9 +173,13 @@ export const ViewerGraph = () => {
             Guardar grafo
           </Button>
 
-          <Button>
-            Exportar Archivo
-          </Button>
+          <ExportJsonCsv
+            className="btn btn-info"
+            headers={headers}
+            items={state.data.graph.data}
+          >
+            Exportar archivo
+          </ExportJsonCsv>
           <Button
             variant="info"
             onClick={() => limpiar()}
@@ -189,16 +192,16 @@ export const ViewerGraph = () => {
           <ResponsiveEmbed aspectRatio={'4by3'} ref={ref}>
             <div className="container__graph-area">
               <picture>
-               { useMemo( () =>
-                <Graph
-                  graph={data}
-                  options={options}
-                  events={events}
-                  getNetwork={network => {
-                    setNetwork(network);
-                  }}
-                />
-                , [data, options]
+                {useMemo(() =>
+                  <Graph
+                    graph={data}
+                    options={options}
+                    events={events}
+                    getNetwork={network => {
+                      setNetwork(network);
+                    }}
+                  />
+                  , [data, options]
                 )
                 }
               </picture>
@@ -277,6 +280,6 @@ export const ViewerGraph = () => {
           </Modal.Footer>
         </Form>
       </Modal>
-    </div>
+    </div >
   )
 }

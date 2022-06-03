@@ -7,7 +7,7 @@ import "../assets/css/menu.css";
 import { Container, Row, Col } from "react-bootstrap";
 import { Algorithms } from "../components/Algorithms";
 import { Statistics } from "../components/Statistics";
-import {  ViewerGraph } from "../components/ViewerGraph";
+import { ViewerGraph } from "../components/ViewerGraph";
 
 
 export const Dashboard = () => {
@@ -18,7 +18,7 @@ export const Dashboard = () => {
         <Col xs={3} md={3} lg={3} sm={3} >
           <Menu></Menu>
         </Col>
-      <Col>
+        <Col>
           <Container>
             <Suspense fallback={<div>Cargando...</div>}>
               <Switch>
@@ -33,7 +33,7 @@ export const Dashboard = () => {
                 </Route>
                 <Route exact path="/visualizacion">
                   <Container fluid="md" className="p-3">
-                    <ViewerGraph></ViewerGraph>                
+                    <ViewerGraph></ViewerGraph>
                   </Container>
                 </Route>
                 <Route exact path="/algoritmos">
@@ -50,9 +50,9 @@ export const Dashboard = () => {
               </Switch>
             </Suspense>
           </Container>
-            
-        </Col> 
-    </Row>
+
+        </Col>
+      </Row>
     </div>
   );
 };
