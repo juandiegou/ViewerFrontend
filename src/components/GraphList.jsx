@@ -32,9 +32,9 @@ const GraphList = () => {
       ) : (
         <div className="row ">
           {
-            graphs.map((graph) => (
+            graphs.map((graph, idx ) => (
 
-              <Row>
+              <Row key={idx}>
                 <Col>
                   <GraphItem graph={graph} />
                 </Col>

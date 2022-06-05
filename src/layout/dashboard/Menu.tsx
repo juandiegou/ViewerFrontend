@@ -1,9 +1,6 @@
-import { faHome, faProjectDiagram, faUpload, faMagic, faChartPie } from '@fortawesome/free-solid-svg-icons';
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Image, Card } from "react-bootstrap";
 import { NavLink } from "react-router-dom";
 import "../../assets/css/menu.css";
-import Logo from "../../assets/images/logo.png";
 import Admin from "../../assets/images/admin.png";
 import { useSelector } from "react-redux";
 import { RootState } from "../../redux/store";
@@ -34,46 +31,21 @@ export const Menu = () => {
         <ul className="menu-items">
           <li>
             <NavLink to={"/dashboard"} activeClassName="item-active" >
-              {/* <FontAwesomeIcon
-              icon={faHome}
-              className="menu-icon"
-            ></FontAwesomeIcon> */}
               Inicio
             </NavLink>
           </li>
-          {/* <li>
-          <NavLink to={`/ingreso`} activeClassName="item-active">
-            <FontAwesomeIcon
-              icon={faUpload}
-              className="menu-icon"
-            ></FontAwesomeIcon>
-            Ingresar Grafo
-          </NavLink>
-        </li> */}
           <li>
             <NavLink to={`/visualizacion`} activeClassName="item-active">
-              {/* <FontAwesomeIcon
-              icon={faProjectDiagram}
-              className="menu-icon"
-            ></FontAwesomeIcon> */}
               Visualizar grafo
             </NavLink>
           </li>
           <li>
             <NavLink to={`/algoritmos`} activeClassName="item-active">
-              {/* <FontAwesomeIcon
-              icon={faMagic}
-              className="menu-icon"
-            ></FontAwesomeIcon> */}
               Algoritmos
             </NavLink>
           </li>
           <li>
             <NavLink to={`/estadisticas`} activeClassName="item-active">
-              {/* <FontAwesomeIcon
-              icon={faChartPie}
-              className="menu-icon"
-            ></FontAwesomeIcon> */}
               Estadisticas
             </NavLink>
           </li>
