@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { useLocation } from 'react-router-dom';
-import { Card, Button, Modal, Form, Col, Row } from 'react-bootstrap';
+import { Card, Button, Modal, Form } from 'react-bootstrap';
 import ResponsiveEmbed from 'react-bootstrap/ResponsiveEmbed';
 import Graph from "react-graph-vis";
 import { useToImage } from '@hcorta/react-to-image'
@@ -176,7 +176,7 @@ export const ViewerGraph = () => {
           <ExportJsonCsv
             className="btn btn-info"
             headers={headers}
-            items={state.data.graph.data}
+            items={state?.data?.graph.data?state.data.graph.data:['sin datos']}
           >
             Exportar archivo
           </ExportJsonCsv>
@@ -209,7 +209,7 @@ export const ViewerGraph = () => {
           </ResponsiveEmbed>
         </Card.Body>
         <Card.Footer>
-          <small className="text-muted">Last updated 3 mins ago</small>
+          <small className="text-muted">{state?.data?.graph?.name?state.data.graph.name:'Sin información'}</small>
         </Card.Footer>
       </Card>
       <Modal

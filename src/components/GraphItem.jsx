@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useHistory } from 'react-router-dom';
 import { Button, Modal, Form, Row, Col, Container } from 'react-bootstrap';
 import { Loader } from './Loader';

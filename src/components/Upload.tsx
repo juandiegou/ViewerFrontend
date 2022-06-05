@@ -1,6 +1,5 @@
 import React, {useState} from 'react';
 import { Dropzone, FileItem, FileValidated } from "@dropzone-ui/react";
-import { Button } from 'react-bootstrap';
 import * as GraphServer from "./GraphServer";
 import { addNotification } from "../actions/others";
 
